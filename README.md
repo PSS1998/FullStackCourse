@@ -1,3 +1,3 @@
 # FullStackCourse
 
-Solutions of fullstackopen.com/en/ course.
+Solutions of [Fullstack](https://fullstackopen.com/en/) course.
