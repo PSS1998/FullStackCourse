@@ -23,12 +23,17 @@ const userExtractor = async (request, response, next) => {
     const decodedToken = jwt.verify(authorization.substring(7), process.env.SECRET)
     if (!decodedToken.id) {    
       return response.status(401).json({ error: 'token missing or invalid' })  
-    } else{
-      request.user = await User.findById(decodedToken.id)
+    } else {
+      const user = await User.findById(decodedToken.id)
+      if (!user) {
+        return response.status(401).json({ error: 'token does not correspond to a user' })
+      }
+      request.user = user
     }
   }
   next()
 }
+
 
 module.exports = {
   errorHandler, userExtractor

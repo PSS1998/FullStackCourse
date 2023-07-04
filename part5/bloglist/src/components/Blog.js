@@ -24,7 +24,7 @@ const Blog = ({ blog, incLike, deleteBlog }) => {
           {blog.url}
         </p>
         <p className="username">
-          {blog.user.username}
+          {blog.author}
         </p>
       </Togglable>
       <button onClick={() => deleteBlog(blog)}>remove</button>

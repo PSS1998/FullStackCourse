@@ -16,7 +16,7 @@ describe("Blog application", function () {
   beforeEach(function () {
     cy.request("POST", "http://localhost:3003/api/testing/reset");
     cy.request("POST", "http://localhost:3003/api/users/", testData.user);
-    cy.visit("http://localhost:3000");
+    cy.visit("http://localhost:3003");
   });
 
   it("Login form is visible", function () {
@@ -71,25 +71,26 @@ describe("Blog application", function () {
         { title: "new blog", author: "Rasa", url: "yahoo.com" },
         { title: "final blog", author: "Ali", url: "youtube.com" },
       ];
-
+    
       beforeEach(function () {
-        additionalBlogs.forEach((blog) => {
-          cy.get(".title").type(blog.title);
-          cy.get(".author").type(blog.author);
-          cy.get(".url").type(blog.url);
+        additionalBlogs.forEach((x) => {
+          cy.get(".title").first().type(x.title);
+          cy.get(".author").first().type(x.author);
+          cy.get(".url").first().type(x.url);
           cy.get("body").contains("create").click();
         });
       });
-
+    
       it("Blogs are ordered based on likes", function () {
-        cy.get(".blog").first().should("contain", testData.blog.title);
+        cy.get(".blog").eq(0).should("contain", testData.blog.title);
         cy.get(".blog").eq(1).within(() => {
-          cy.get("body").contains("show details").click();
-          cy.get("body").contains("like").click();
+          cy.contains("show details").click();
+          cy.contains("like").click();
         });
-        cy.get(".blog").first().should("contain", "new blog");
+        cy.get(".blog").eq(0).should("contain", "new blog");
         cy.get(".blog").eq(1).should("contain", testData.blog.title);
       });
     });
+    
   });
 });
