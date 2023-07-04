@@ -141,7 +141,7 @@ const App = () => {
         </div>
       }
       {sortedBlogs.map(blog =>
-        <Blog key={blog.id} blog={blog} incLike={incLike} deleteBlog={deleteBlog}/>
+        <Blog key={blog.id} blog={blog} user={user} incLike={incLike} deleteBlog={deleteBlog}/>
       )}
     </div>
   )

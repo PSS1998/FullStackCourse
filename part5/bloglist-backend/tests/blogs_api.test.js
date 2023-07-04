@@ -161,7 +161,7 @@ describe('user creation', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('username must be unique')
+    expect(result.body.error).toContain('username already exists')
   })
 })
 

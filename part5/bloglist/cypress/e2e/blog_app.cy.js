@@ -16,7 +16,7 @@ describe("Blog application", function () {
   beforeEach(function () {
     cy.request("POST", "http://localhost:3003/api/testing/reset");
     cy.request("POST", "http://localhost:3003/api/users/", testData.user);
-    cy.visit("http://localhost:3003");
+    cy.visit("http://localhost:3000");
   });
 
   it("Login form is visible", function () {
@@ -61,9 +61,24 @@ describe("Blog application", function () {
       cy.get("body").should("contain", "1");
     });
 
-    it("User can delete a blog", function () {
+    it("User can delete a blog they created", function () {
       cy.get("body").contains("show details").click();
       cy.get("body").contains("remove").click();
+    });
+
+    it('cannot delete a blog someone else created', function () {
+      const anotherUser = { ...user, username: 'test2' };
+      cy.request("POST", "http://localhost:3003/api/users/", anotherUser);
+
+      cy.get("body").contains("logout").click();
+
+      cy.get("body").contains("log in").click();
+      cy.get(".username").type(anotherUser.username);
+      cy.get(".password").type(anotherUser.password);
+      cy.get("body").contains("login").click();
+
+      cy.get("body").contains("show details").click();
+      cy.get("body").contains("remove").should('not.exist');
     });
 
     describe("Blog ordering", function () {
@@ -91,6 +106,6 @@ describe("Blog application", function () {
         cy.get(".blog").eq(1).should("contain", testData.blog.title);
       });
     });
-    
+
   });
 });

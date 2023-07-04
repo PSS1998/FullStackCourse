@@ -2,7 +2,7 @@ import Togglable from './Togglable'
 import PropTypes from 'prop-types'
 import { useRef } from 'react'
 
-const Blog = ({ blog, incLike, deleteBlog }) => {
+const Blog = ({ blog, user, incLike, deleteBlog }) => {
   const blogRef = useRef()
 
   const blogStyle = {
@@ -27,7 +27,9 @@ const Blog = ({ blog, incLike, deleteBlog }) => {
           {blog.author}
         </p>
       </Togglable>
-      <button onClick={() => deleteBlog(blog)}>remove</button>
+      {blog.user.username === user.username && (
+        <button onClick={() => deleteBlog(blog)}>remove</button>
+      )}
     </div>
   )
 }

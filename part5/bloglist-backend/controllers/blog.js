@@ -2,9 +2,7 @@ const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 
 blogRouter.get('/', async (request, response) => {
-  const notes = await Blog
-    .find({})
-    .find({}).populate('user', { username: 1, name: 1 })
+  const notes = await Blog.find({}).find({}).populate('user', { username: 1, name: 1 })
 
   response.json(notes)
 })
@@ -25,6 +23,18 @@ blogRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
+blogRouter.put('/:id', async (request, response) => {
+  const blog = request.body
+
+  const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id, 
+      blog, 
+      { new: true, runValidators: true, context: 'query' }
+    )
+      
+  response.json(updatedBlog)
+})
+
 blogRouter.delete('/:id', async (request, response) => {
   const blogToDelete = await Blog.findById(request.params.id)
   if (!blogToDelete ) {
@@ -32,27 +42,14 @@ blogRouter.delete('/:id', async (request, response) => {
   }
 
   if ( blogToDelete.user && blogToDelete.user.toString() !== request.user.id ) {
-    return response.status(401).json({
-      error: 'only the creator can delete a blog'
+    return response.status(403).json({
+      error: 'blog belongs to another user'
     })
   }
 
   await Blog.findByIdAndRemove(request.params.id)
 
   response.status(204).end()
-})
-
-blogRouter.put('/:id', async (request, response) => {
-  const blog = request.body
-
-  const updatedBlog = await Blog
-    .findByIdAndUpdate(
-      request.params.id, 
-      blog, 
-      { new: true, runValidators: true, context: 'query' }
-    )
-      
-  response.json(updatedBlog)
 })
 
 module.exports = blogRouter
