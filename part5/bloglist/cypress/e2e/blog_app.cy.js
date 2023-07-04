@@ -16,7 +16,7 @@ describe("Blog application", function () {
   beforeEach(function () {
     cy.request("POST", "http://localhost:3003/api/testing/reset");
     cy.request("POST", "http://localhost:3003/api/users/", testData.user);
-    cy.visit("http://localhost:3000");
+    cy.visit("http://localhost:3003");
   });
 
   it("Login form is visible", function () {
@@ -62,15 +62,18 @@ describe("Blog application", function () {
     });
 
     it("User can delete a blog they created", function () {
+      cy.visit("http://localhost:3003");
       cy.get("body").contains("show details").click();
       cy.get("body").contains("remove").click();
     });
 
     it('cannot delete a blog someone else created', function () {
-      const anotherUser = { ...user, username: 'test2' };
+      const anotherUser = { ...testData.user, username: 'test2' };
       cy.request("POST", "http://localhost:3003/api/users/", anotherUser);
 
       cy.get("body").contains("logout").click();
+
+      cy.visit("http://localhost:3003");
 
       cy.get("body").contains("log in").click();
       cy.get(".username").type(anotherUser.username);

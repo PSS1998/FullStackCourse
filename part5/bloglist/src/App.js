@@ -40,8 +40,6 @@ const App = () => {
       window.localStorage.setItem(
         'loggedInUser', JSON.stringify(user)
       )
-      setUsername('')
-      setPassword('')
     } catch (exception) {
       setNotification('wrong credentials')
       setIsSuccess(false)
@@ -128,7 +126,6 @@ const App = () => {
   }
 
   const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
-  console.log(sortedBlogs)
   return (
     <div>
       <h2>blogs</h2>
@@ -138,11 +135,15 @@ const App = () => {
         <div>
           <p>{user.name} logged in <button onClick={(event) => handleLogout(event)}>logout</button>  </p>
           {addBlogForm()}
+          {console.log('test')}
+          {console.log(user.name)}
+          {console.log(username)}
+          {console.log(user.username)}
+          {sortedBlogs.map(blog =>
+            <Blog key={blog.id} blog={blog} username={user.username} incLike={incLike} deleteBlog={deleteBlog}/>
+          )}
         </div>
       }
-      {sortedBlogs.map(blog =>
-        <Blog key={blog.id} blog={blog} user={user} incLike={incLike} deleteBlog={deleteBlog}/>
-      )}
     </div>
   )
 }
