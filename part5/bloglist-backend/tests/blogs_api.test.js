@@ -8,13 +8,13 @@ const api = supertest(app)
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
-describe('when there are some blogs in database', () => {
+describe('when there are blogs', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
   })
 
-  test('those are returned as json', async () => {
+  test('blogs are returned as json', async () => {
     const response = await api
       .get('/api/blogs')
       .expect(200)
@@ -23,16 +23,24 @@ describe('when there are some blogs in database', () => {
       expect(response.body).toHaveLength(helper.initialBlogs.length)
   })
 
-  test('those are identified by field id', async () => {
-    const response = await api
-      .get('/api/blogs')
-      .expect(200)
-      .expect('Content-Type', /application\/json/)
+  test('a blog can be edited', async () => {
+    const aBlogAtStart = (await helper.blogsInDb())[0]
+    const editedBlog = {
+      ...aBlogAtStart,
+      likes: 75
+    }
 
-      expect(response.body[0].id).toBeDefined()
+    await api
+      .put(`/api/blogs/${aBlogAtStart.id}`)
+      .send(editedBlog)
+      .expect(200)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const aBlogAtEnd = blogsAtEnd.find(b => b.id === aBlogAtStart.id)
+    expect(aBlogAtEnd.likes).toBe(75)
   })
 
-  test('a blog can be deleted', async () => {
+  test('blog post can be deleted by id', async () => {
     const aBlogAtStart = (await helper.blogsInDb())[0]
 
     await api
@@ -46,24 +54,7 @@ describe('when there are some blogs in database', () => {
       expect(titles).not.toContain(aBlogAtStart.title)
   })
 
-  test('a blog can be edited', async () => {
-    const aBlogAtStart = (await helper.blogsInDb())[0]
-    const editedBlog = {
-      ...aBlogAtStart,
-      likes: 99
-    }
-
-    await api
-      .put(`/api/blogs/${aBlogAtStart.id}`)
-      .send(editedBlog)
-      .expect(200)
-
-    const blogsAtEnd = await helper.blogsInDb()
-    const aBlogAtEnd = blogsAtEnd.find(b => b.id === aBlogAtStart.id)
-    expect(aBlogAtEnd.likes).toBe(99)
-  })
-
-  describe('addition of a blog', () => {
+  describe('a valid blog post can be added', () => {
     let token
     beforeEach(async () => {
       await User.deleteMany({})
@@ -81,16 +72,16 @@ describe('when there are some blogs in database', () => {
     })
 
     test('succeeds if content valid', async () => {
-      const newBlog = {
-        title: 'Benefits of Scrumban',
-        author: 'Kalle Ilves',
-        url: 'www.google.com',
-        likes: 7
+      const newPost = {
+        'title': "Fresh post",
+        'author': "John Doe",
+        'url': "http://example.com",
+        'likes': 20
       }
     
       await api
         .post('/api/blogs')
-        .send(newBlog)
+        .send(newPost)
         .set('Authorization', `bearer ${token}`)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -99,12 +90,12 @@ describe('when there are some blogs in database', () => {
         expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
         const titles = blogsAtEnd.map(b => b.title)
-        expect(titles).toContain('Benefits of Scrumban')
+        expect(titles).toContain('Fresh post')
     })
 
     test('fails if title and url missing', async () => {
       const newBlog = {
-        author: 'Kalle Ilves',
+        author: 'Parsa',
         likes: 7
       }
     
@@ -133,8 +124,8 @@ describe('user creation', () => {
 
   test('fails if username is too short', async () => {
     const newUser = {
-      username: 'mo',
-      pasword: 'sekred'
+      username: 'sh',
+      pasword: 'salainen'
     }
   
     await api
@@ -146,8 +137,8 @@ describe('user creation', () => {
 
   test('fails if password is too short', async () => {
     const newUser = {
-      username: 'kalle',
-      pasword: 'p'
+      username: 'root',
+      pasword: 'sh'
     }
   
     await api
